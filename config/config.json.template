@@ -6,5 +6,5 @@
   "stock-tracer": {
     "refresh_interval": "10m"
   },
-  "IEX_API_TOKEN": ""
+  "salt": ""
 }
