@@ -4,6 +4,8 @@ from . import models, schemas
 import yfinance as yf
 import logging
 from sqlalchemy.sql.expression import and_
+from stock_tracer.authentication.auth import get_password_hash
+from stock_tracer.config import config
 
 logger = logging.getLogger(__name__)
 
@@ -67,10 +69,8 @@ def get_users(db: Session, skip: int = 0, limit: int = 100):
 
 def create_user(db: Session, user: schemas.UserCreate):
     # TODO: hashing
-    fake_hashed_password = user.password + "notreallyhashed"
-    db_user = models.User(
-        email=user.email, hashed_password=fake_hashed_password, financial_profile=user.financial_profile
-    )
+    hashed_password = get_password_hash(config.salt + user.password)
+    db_user = models.User(email=user.email, hashed_password=hashed_password, financial_profile=user.financial_profile)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
