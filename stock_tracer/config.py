@@ -1,3 +1,7 @@
+"""
+Simple module that reads a json file (and can be extended to merge json files)
+and allow for easy dot-referencing from the `config` object
+"""
 from dotmap import DotMap
 import json
 import os
