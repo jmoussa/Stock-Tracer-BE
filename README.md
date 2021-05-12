@@ -25,11 +25,13 @@ so that it can be sent to the front-end in the proper format and graphed.
 ## Set Up and Run the Server
 
 I've set it up so that you only need to use the `run` script to start.
-Be sure to set the S3 environement variables for access
+Be sure to set the S3 environement variables for access.
 
+In the root directory of the repository:
 ```bash
 conda env create -f environment.yml
 conda activate stock-tracer 
+cd stock_tracer
 cp config/config.json.template config/config.json # edit config.json and fill with your values/credentials
 
 ./run
