@@ -16,10 +16,10 @@ This API handles
 ## Architecture
 
 The API caches each call it does, and before the next call is made,
-it checks the cache (for now, in the database) for any request of that stock within the cache time limit
+it checks the database for any request of that stock within the caching time limit
 (default set in `config.json`, and editable by the user in the UI).
 
-After the historical data is retrieved the API will format the data as efficiently as possible
+After the historical data is retrieved (whether from the database or yfinance) the API will format the data
 so that it can be sent to the front-end in the proper format and graphed.
 
 ## Set Up and Run the Server
