@@ -63,7 +63,7 @@ pyasn1==0.4.8
 pyasn1-modules==0.2.8
 pycodestyle==2.7.0
 pycparser==2.20
-pydantic==1.8.1
+pydantic==1.8.2
 pyEX==0.5.0
 pyflakes==2.3.1
 Pygments==2.6.1
@@ -87,8 +87,6 @@ socketIO-client-nexus==0.7.6
 SQLAlchemy==1.4.14
 sseclient==0.0.27
 starlette==0.13.6
-## !! Could not determine repository location
-stock-tracer==0.0.1
 temporal-cache==0.1.4
 toml==0.10.2
 tqdm==4.45.0
