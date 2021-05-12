@@ -1,0 +1,10 @@
+{
+  "db": {
+    "uri": "postgresql://root:password@localhost/stocktracer"
+  },
+  "env": "local",
+  "stock-tracer": {
+    "refresh_interval": "10m"
+  },
+  "IEX_API_TOKEN": ""
+}

@@ -1,0 +1,7 @@
+*.egg-info/
+*.json
+*.pyc
+*__pycache__/
+.vim/
+.env
+.DS_Store
