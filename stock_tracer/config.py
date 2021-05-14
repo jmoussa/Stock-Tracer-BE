@@ -6,6 +6,7 @@ from dotmap import DotMap
 import json
 import os
 
+# Fetch environment variable detailing the path to the folder containing the config files
 CONFIG_LOCATION = os.getenv("CONFIG_LOCATION")
 
 if CONFIG_LOCATION is None:

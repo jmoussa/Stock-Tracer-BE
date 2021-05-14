@@ -18,7 +18,9 @@ def get_user_by_email(db: Session, email: str):
     return db.query(models.User).filter(models.User.email == email).first()
 
 
-def create_ticker_in_db(db: Session, ticker_name, historical_data, ticker_symbol, resolution):
+def create_ticker_in_db(
+    db: Session, ticker_name, historical_data, ticker_symbol, resolution
+):
     db_ticker = models.Ticker(
         name=ticker_name,
         symbol=ticker_symbol,
@@ -40,7 +42,9 @@ def remote_fetch_ticker(ticker: str, db: Session):
     df.index = df.index.astype("str")
     logger.warning(df)
     if not df.empty:
-        db_ticker = create_ticker_in_db(db, ticker_name, df.to_dict("index"), ticker, "ytd")
+        db_ticker = create_ticker_in_db(
+            db, ticker_name, df.to_dict("index"), ticker, "ytd"
+        )
         return db_ticker
     else:
         return {}
@@ -51,7 +55,9 @@ def get_ticker_by_name(db: Session, ticker: str = None):
         since = datetime.datetime.utcnow() - datetime.timedelta(hours=1)
         db_entry = (
             db.query(models.Ticker)
-            .filter(and_(models.Ticker.symbol == ticker, models.Ticker.updated_at < since))
+            .filter(
+                and_(models.Ticker.symbol == ticker, models.Ticker.updated_at < since)
+            )
             .first()
         )
         logger.warning(f"DB ENTRY: {db_entry}")
@@ -70,7 +76,11 @@ def get_users(db: Session, skip: int = 0, limit: int = 100):
 def create_user(db: Session, user: schemas.UserCreate):
     # TODO: hashing
     hashed_password = get_password_hash(config.salt + user.password)
-    db_user = models.User(email=user.email, hashed_password=hashed_password, financial_profile=user.financial_profile)
+    db_user = models.User(
+        email=user.email,
+        hashed_password=hashed_password,
+        financial_profile=user.financial_profile,
+    )
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
