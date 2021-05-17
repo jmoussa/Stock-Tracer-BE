@@ -23,3 +23,5 @@ class Ticker(Base):
     symbol = Column(String, primary_key=True)
     historical_data = Column(JSONB)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow)
+    sector = Column(String)
+    long_business_description = Column(String)

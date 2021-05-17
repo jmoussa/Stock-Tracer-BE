@@ -18,16 +18,7 @@ def get_user_by_email(db: Session, email: str):
     return db.query(models.User).filter(models.User.email == email).first()
 
 
-def create_ticker_in_db(
-    db: Session, ticker_name, historical_data, ticker_symbol, resolution
-):
-    db_ticker = models.Ticker(
-        name=ticker_name,
-        symbol=ticker_symbol,
-        historical_data=historical_data,
-        resolution=resolution,
-        updated_at=datetime.datetime.utcnow().isoformat(),
-    )
+def create_ticker_in_db(db: Session, db_ticker: models.Ticker):
     db.add(db_ticker)
     db.commit()
     db.refresh(db_ticker)
@@ -37,14 +28,22 @@ def create_ticker_in_db(
 def remote_fetch_ticker(ticker: str, db: Session):
     logger.warning(f"Fetching {ticker}")
     ticker_obj = yf.Ticker(ticker)
-    ticker_name = ticker_obj.info["shortName"]
+    company_name = ticker_obj.info["shortName"]
+    sector = ticker_obj.info["sector"]
+    long_business_description = ticker_obj.info["longBusinessSummary"]
     df = ticker_obj.history(period="ytd")
     df.index = df.index.astype("str")
-    logger.warning(df)
     if not df.empty:
-        db_ticker = create_ticker_in_db(
-            db, ticker_name, df.to_dict("index"), ticker, "ytd"
+        db_ticker = models.Ticker(
+            name=company_name,
+            symbol="ticker",
+            historical_data=df.to_dict("index"),
+            resolution="ytd",
+            updated_at=datetime.datetime.utcnow().isoformat(),
+            sector=sector,
+            long_business_description=long_business_description,
         )
+        db_ticker = create_ticker_in_db(db, db_ticker)
         return db_ticker
     else:
         return {}
