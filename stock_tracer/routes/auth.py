@@ -1,10 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from datetime import timedelta
-
 from sqlalchemy.orm import Session
 from stock_tracer.database.database import get_db
-from stock_tracer.database import schemas, models
+from stock_tracer.database import schemas, models, crud
 from stock_tracer.authentication.auth import (
     Token,
     ACCESS_TOKEN_EXPIRE_MINUTES,
@@ -16,7 +15,7 @@ from stock_tracer.authentication.auth import (
 router = APIRouter()
 
 
-@router.get("/token", response_model=Token)
+@router.post("/token", response_model=Token)
 def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
 ):
@@ -34,7 +33,24 @@ def login_for_access_token(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@router.get("/validate", response_model=schemas.User)
+@router.get("/verify", response_model=schemas.User)
 def validate_current_user(current_user: models.User = Depends(get_current_active_user)):
     user = schemas.User(**current_user.to_dict())
     return user
+
+
+@router.post("/register", response_model=Token)
+def register_for_access_token(
+    form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
+):
+    user_create = {
+        "email": form_data.username,
+        "password": form_data.password,
+        "financial_profile": {},
+    }
+    user = crud.create_user(db, schemas.UserCreate(**user_create))
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.email}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
