@@ -13,6 +13,14 @@ class User(Base):
     is_active = Column(Boolean, default=True)
     financial_profile = Column(JSONB)
 
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "email": self.email,
+            "is_active": self.is_active,
+            "financial_profile": self.financial_profile,
+        }
+
 
 class Ticker(Base):
     __tablename__ = "tickers"
