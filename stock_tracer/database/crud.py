@@ -26,7 +26,7 @@ def create_ticker_in_db(db: Session, db_ticker: models.Ticker):
 
 
 def remote_fetch_ticker(ticker: str, db: Session):
-    logger.warning(f"Fetching {ticker}")
+    # logger.warning(f"Fetching {ticker}")
     ticker_obj = yf.Ticker(ticker)
     company_name = ticker_obj.info["shortName"]
     sector = ticker_obj.info["sector"]
@@ -59,7 +59,7 @@ def get_ticker_by_name(db: Session, ticker: str = None):
             )
             .first()
         )
-        logger.warning(f"DB ENTRY: {db_entry}")
+        # logger.warning(f"DB ENTRY: {db_entry}")
         if db_entry:
             return db_entry
         else:
@@ -73,8 +73,7 @@ def get_users(db: Session, skip: int = 0, limit: int = 100):
 
 
 def create_user(db: Session, user: schemas.UserCreate):
-    # TODO: hashing
-    hashed_password = get_password_hash(config.salt + user.password)
+    hashed_password = get_password_hash(user.password)
     db_user = models.User(
         email=user.email,
         hashed_password=hashed_password,
