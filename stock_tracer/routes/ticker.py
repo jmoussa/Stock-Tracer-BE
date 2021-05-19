@@ -9,7 +9,7 @@ router = APIRouter()
 
 
 @router.get("/tickers/historical/{ticker}", response_model=schemas.Ticker)
-def create_user(ticker: str, db: Session = Depends(get_db)):
+def fetch_ticker(ticker: str, db: Session = Depends(get_db)):
     db_ticker = crud.get_ticker_by_name(db, ticker=ticker)
     if db_ticker:
         return db_ticker
