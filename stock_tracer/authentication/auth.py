@@ -4,7 +4,7 @@ from fastapi.security import OAuth2PasswordBearer
 from typing import Optional
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
-from stock_tracer.database import crud, models, database
+from stock_tracer.database import crud, models, database, schemas
 from pydantic import BaseModel
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
@@ -21,6 +21,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 class Token(BaseModel):
     access_token: str
     token_type: str
+    user: schemas.User
 
 
 class TokenData(BaseModel):
