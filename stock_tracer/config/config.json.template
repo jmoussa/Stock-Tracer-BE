@@ -6,5 +6,8 @@
   "stock-tracer": {
     "refresh_interval": "10m"
   },
-  "salt": ""
+  "salt": "",
+  "robinhood": {
+    "mfa_application_identifier": ""
+  }
 }
