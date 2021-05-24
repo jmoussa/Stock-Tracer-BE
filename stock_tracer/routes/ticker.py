@@ -22,10 +22,10 @@ def fetch_ticker(ticker: str, db: Session = Depends(get_db)):
 
 @router.post("/rh_portfolio")
 def import_robinhood_portfoio(
-    form_data: OAuth2PasswordRequestForm = Depends(),
+    form_data: dict,
     current_user: models.User = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ):
-    res = fetch_build_holdings(form_data.username, form_data.password)
+    res = fetch_build_holdings(form_data["username"], form_data["password"])
     logger.warning(res)
     return res

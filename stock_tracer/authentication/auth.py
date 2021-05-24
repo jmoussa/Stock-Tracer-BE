@@ -54,12 +54,20 @@ async def get_current_user(
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email: str = payload.get("sub")
         if email is None:
+            logger.warning("Email is None: Payload\n")
             raise credentials_exception
         token_data = TokenData(email=email)
-    except JWTError:
+    except JWTError as e:
+        logger.warning(f"Cannot decode JWT (prefix)")
+        logger.exception(e)
         raise credentials_exception
-    user = crud.get_user_by_email(db, email=token_data.email)
+    if token_data:
+        user = crud.get_user_by_email(db, email=token_data.email)
+    else:
+        logger.error(f"token_data not generated")
+        raise credentials_exception
     if user is None:
+        logger.warning(f"User not supplied {token_data}")
         raise credentials_exception
     return user
 
