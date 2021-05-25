@@ -8,6 +8,8 @@
   },
   "salt": "",
   "robinhood": {
-    "mfa_application_identifier": ""
+    "mfa_application_identifier": "",
+    "username": "",
+    "password": ""
   }
 }

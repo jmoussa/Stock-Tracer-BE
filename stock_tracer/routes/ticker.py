@@ -4,11 +4,15 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from stock_tracer.database.database import get_db
 from stock_tracer.database import crud, schemas, models
-from stock_tracer.robinhood.rh import fetch_build_holdings
+from stock_tracer.robinhood.rh import RobinhoodConnector
 from stock_tracer.authentication.auth import get_current_active_user
+from stock_tracer.config import config
 
 logger = getLogger(__name__)
 router = APIRouter()
+
+# TODO: create endpoint and add to app state instead of keeping credentials tied to config
+rh = RobinhoodConnector(config.robinhood["username"], config.robinhood["password"])
 
 
 @router.get("/tickers/historical/{ticker}", response_model=schemas.Ticker)
@@ -20,12 +24,10 @@ def fetch_ticker(ticker: str, db: Session = Depends(get_db)):
         return HTTPException(status_code=404, detail="Item not found")
 
 
-@router.post("/rh_portfolio")
+@router.get("/rh_portfolio")
 def import_robinhood_portfoio(
-    form_data: dict,
     current_user: models.User = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ):
-    res = fetch_build_holdings(form_data["username"], form_data["password"])
-    logger.warning(res)
+    res = rh.fetch_build_holdings()
     return res
