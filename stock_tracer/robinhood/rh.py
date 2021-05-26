@@ -10,6 +10,7 @@ class RobinhoodConnector:
         totp = pyotp.TOTP(config.robinhood["mfa_application_identifier"]).now()
         rh.authentication.login(username, password, mfa_code=totp)
         self.rh_conn = rh
+        self.build_holdings = None
 
     def fetch_build_holdings(self):
         # totp = pyotp.TOTP(config.robinhood["mfa_application_identifier"]).now()
@@ -22,8 +23,12 @@ class RobinhoodConnector:
         """
         Returns a dictionary mapping ticker to a pandas dataframe interpreted dictionary of the stock's historical data
         """
+        # Fetch build holding symbols/tickers
         if symbols is None:
+            if self.build_holdings is None:
+                self.fetch_build_holdings()
             symbols = list(self.build_holdings.keys())
+
         # Fetch historical data from yfinance
         #   could also get from robinhood, but yfinance is faster and more accurate
         response = yf.Tickers(" ".join(symbols))
@@ -35,6 +40,7 @@ class RobinhoodConnector:
             except Exception:
                 df = ticker_obj.history(period="ytd")
 
+            df.index = df.index.map(str)
             ticker_historicals = df.to_dict("index")
             historical_data[ticker] = ticker_historicals
         return historical_data
@@ -51,4 +57,5 @@ if __name__ == "__main__":
     logger = logging.getLogger(__name__)
     rh = RobinhoodConnector(config.robinhood["username"], config.robinhood["password"])
     transations = rh.fetch_transactions()
-    logger.warning(json.dumps(transations, indent=2))
+    historicals = rh.fetch_historicals()
+    logger.warning(historicals.keys())
