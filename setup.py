@@ -8,7 +8,7 @@ def get_requirements():
         return [line.strip() for line in f]
 
 
-print(f"Packages: {find_namespace_packages(include=['stock_tracer.*'])}")
+print(find_namespace_packages(include=["stock_tracer.*"]))
 setup(
     name="stock-tracer",
     version="0.0.1",
