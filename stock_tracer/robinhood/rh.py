@@ -16,7 +16,6 @@ class RobinhoodConnector:
         # totp = pyotp.TOTP(config.robinhood["mfa_application_identifier"]).now()
         # rh.authentication.login(username, password, mfa_code=totp)
         my_stocks = self.rh_conn.build_holdings()
-        self.build_holdings = my_stocks
         return my_stocks
 
     def fetch_historicals(self, symbols: str or list = None, time_period: str = "5y"):
@@ -26,7 +25,8 @@ class RobinhoodConnector:
         # Fetch build holding symbols/tickers
         if symbols is None:
             if self.build_holdings is None:
-                self.fetch_build_holdings()
+                self.build_holdings = self.fetch_build_holdings()
+
             symbols = list(self.build_holdings.keys())
 
         # Fetch historical data from yfinance
