@@ -7,6 +7,7 @@ class TickerBase(BaseModel):
     name: str
     resolution: str = "1y"
     symbol: Optional[str] = None
+    sector: Optional[str] = None
     financial_profile: Optional[dict] = None
 
 

@@ -15,13 +15,15 @@ router = APIRouter()
 rh = RobinhoodConnector(config.robinhood["username"], config.robinhood["password"])
 
 
-@router.get("/tickers/historical/{ticker}", response_model=schemas.Ticker)
+@router.get("/tickers/historical/{ticker}")
 def fetch_ticker(ticker: str, db: Session = Depends(get_db)):
     db_ticker = crud.get_ticker_by_name(db, ticker=ticker)
-    if db_ticker:
-        return db_ticker
-    else:
+    if db_ticker is None:
         return HTTPException(status_code=404, detail="Item not found")
+
+    historical_data = rh.fetch_historicals(symbols=ticker)
+    return_obj = {"info": db_ticker, "historical": historical_data}
+    return return_obj
 
 
 @router.get("/rh_portfolio")
