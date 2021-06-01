@@ -8,20 +8,26 @@ from logging import getLogger
 class RobinhoodConnector:
     def __init__(self, username, password):
         totp = pyotp.TOTP(config.robinhood["mfa_application_identifier"]).now()
+        self.username = username
+        self.password = password
         rh.authentication.login(username, password, mfa_code=totp)
         self.rh_conn = rh
         self.build_holdings = None
 
+    def login(self):
+        totp = pyotp.TOTP(config.robinhood["mfa_application_identifier"]).now()
+        rh.authentication.login(self.username, self.password, mfa_code=totp)
+
     def fetch_build_holdings(self):
-        # totp = pyotp.TOTP(config.robinhood["mfa_application_identifier"]).now()
-        # rh.authentication.login(username, password, mfa_code=totp)
+        self.login()
         my_stocks = self.rh_conn.build_holdings()
         return my_stocks
 
     def fetch_historicals(self, symbols: str or list = None, time_period: str = "5y"):
         """
-        Returns a dictionary mapping ticker to a pandas dataframe interpreted dictionary of the stock's historical data
+        Returns a dictionary mapping each ticker (in the user's holdings) to a pandas dataframe-interpreted dictionary of the stock's historical data
         """
+        self.login()
         # Fetch build holding symbols/tickers
         if symbols is None:
             if self.build_holdings is None:
@@ -46,6 +52,7 @@ class RobinhoodConnector:
         return historical_data
 
     def fetch_transactions(self):
+        self.login()
         stock_orders = self.rh_conn.get_all_stock_orders()
         return stock_orders
 
