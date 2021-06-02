@@ -16,7 +16,11 @@ rh = RobinhoodConnector(config.robinhood["username"], config.robinhood["password
 
 
 @router.get("/tickers/{ticker}")
-def fetch_ticker(ticker: str, db: Session = Depends(get_db)):
+def fetch_ticker(
+    ticker: str,
+    current_user: models.User = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
     db_ticker = crud.get_ticker_by_name(db, ticker=ticker)
     if db_ticker is None:
         return HTTPException(status_code=404, detail="Item not found")
