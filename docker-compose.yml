@@ -1,0 +1,19 @@
+version: "3.9"
+   
+services:
+  db:
+    image: postgres:10
+    restart: always 
+    environment:
+      - POSTGRES_DB=stock_tracer
+      - POSTGRES_USER=jmoussa
+      - POSTGRES_PASSWORD=""
+  web:
+    build: .
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+      - "80:80"
+    depends_on:
+      - db
