@@ -2,7 +2,10 @@ import pyotp
 import robin_stocks.robinhood as rh
 from stock_tracer.config import config
 import yfinance as yf
-from logging import getLogger
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(20)
 
 
 class RobinhoodConnector:
@@ -28,6 +31,8 @@ class RobinhoodConnector:
         Returns a dictionary mapping each ticker (in the user's holdings) to a pandas dataframe-interpreted dictionary of the stock's historical data
         """
         self.login()
+        logger.warning("Logged Into Robinhood")
+
         # Fetch build holding symbols/tickers
         if symbols is None:
             if self.build_holdings is None:
@@ -40,6 +45,7 @@ class RobinhoodConnector:
         response = yf.Tickers(" ".join(symbols))
         tickers = response.tickers
         historical_data = {}
+
         for ticker, ticker_obj in tickers.items():
             try:
                 df = ticker_obj.history(period=time_period)
@@ -49,6 +55,7 @@ class RobinhoodConnector:
             df.index = df.index.map(str)
             ticker_historicals = df.to_dict("index")
             historical_data[ticker] = ticker_historicals
+
         return historical_data
 
     def fetch_transactions(self):
