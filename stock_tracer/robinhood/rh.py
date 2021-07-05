@@ -9,20 +9,29 @@ logger.setLevel(20)
 
 
 class RobinhoodConnector:
-    def __init__(self, username, password):
-        totp = pyotp.TOTP(config.robinhood["mfa_application_identifier"]).now()
+    def __init__(self, username, password, mfa_code=""):
         self.username = username
-        self.password = password
-        rh.authentication.login(username, password, mfa_code=totp)
-        self.rh_conn = rh
         self.build_holdings = None
+        self.rh_conn = None
+        try:
+            if mfa_code == "" or mfa_code is None:
+                mfa_code = pyotp.TOTP(
+                    config.robinhood["mfa_application_identifier"]
+                ).now()
 
-    def login(self):
-        totp = pyotp.TOTP(config.robinhood["mfa_application_identifier"]).now()
-        rh.authentication.login(self.username, self.password, mfa_code=totp)
+            rh.authentication.login(username, password, mfa_code=mfa_code)
+            self.rh_conn = rh
+        except Exception:
+            logger.info("MFA Prompt Sent")
+
+    def login(self, password, mfa_code=None):
+        try:
+            rh.authentication.login(self.username, password, mfa_code=mfa_code)
+            self.rh_conn = rh
+        except Exception:
+            logger.info("MFA Prompt Sent")
 
     def fetch_build_holdings(self):
-        self.login()
         my_stocks = self.rh_conn.build_holdings()
         return my_stocks
 
@@ -30,7 +39,6 @@ class RobinhoodConnector:
         """
         Returns a dictionary mapping each ticker (in the user's holdings) to a pandas dataframe-interpreted dictionary of the stock's historical data
         """
-        self.login()
         logger.warning("Logged Into Robinhood")
 
         # Fetch build holding symbols/tickers
@@ -59,7 +67,6 @@ class RobinhoodConnector:
         return historical_data
 
     def fetch_transactions(self):
-        self.login()
         stock_orders = self.rh_conn.get_all_stock_orders()
         return stock_orders
 
@@ -69,7 +76,11 @@ if __name__ == "__main__":
     import json
 
     logger = logging.getLogger(__name__)
-    rh = RobinhoodConnector(config.robinhood["username"], config.robinhood["password"])
-    transations = rh.fetch_transactions()
-    historicals = rh.fetch_historicals()
-    logger.warning(historicals.keys())
+    mfa = input("Enter MFA Code: ")
+    rh = RobinhoodConnector(
+        config.robinhood["username"], config.robinhood["password"], mfa_code=mfa
+    )
+    if rh.rh_conn:
+        logger.warning(rh.fetch_build_holdings())
+    else:
+        logger.warning("Login failed")

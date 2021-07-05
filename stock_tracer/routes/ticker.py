@@ -11,9 +11,6 @@ from stock_tracer.config import config
 logger = getLogger(__name__)
 router = APIRouter()
 
-# TODO: create endpoint and add to app state instead of keeping credentials tied to config
-rh = RobinhoodConnector(config.robinhood["username"], config.robinhood["password"])
-
 
 @router.get("/tickers/{ticker}")
 def fetch_ticker(
@@ -27,19 +24,28 @@ def fetch_ticker(
     return db_ticker
 
 
-@router.get("/rh_historical")
-def get_portfolio_historicals(
+@router.post("/robinhood/info")
+def get_robinhood_info(
+    request: dict,
     current_user: models.User = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ):
-    historical_data = rh.fetch_historicals()
-    return historical_data
+    rh = RobinhoodConnector(
+        request["username"],
+        request["password"],
+        mfa_code=request.get("mfa_code", None),
+    )
 
-
-@router.get("/rh_portfolio")
-def import_robinhood_portfoio(
-    current_user: models.User = Depends(get_current_active_user),
-    db: Session = Depends(get_db),
-):
-    res = rh.fetch_build_holdings()
-    return res
+    if rh and rh.rh_conn is not None:
+        logger.warning("Logged Into Robinhood - Fetching Info...")
+        build_holdings = rh.fetch_build_holdings()
+        transactions = rh.fetch_transactions()
+        historicals = rh.fetch_historicals()
+        robinhood_data = {
+            "build_holdings": build_holdings,
+            "transactions": transactions,
+            "historicals": historicals,
+        }
+        return robinhood_data
+    else:
+        return {"message": "missing mfa"}
