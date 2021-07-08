@@ -41,10 +41,14 @@ def get_robinhood_info(
         build_holdings = rh.fetch_build_holdings()
         transactions = rh.fetch_transactions()
         historicals = rh.fetch_historicals()
+        account_profile = rh.fetch_account_profile()
+        earnings = rh.fetch_earnings()
         robinhood_data = {
             "build_holdings": build_holdings,
             "transactions": transactions,
             "historicals": historicals,
+            "account_profile": account_profile,
+            "earnings": earnings,
         }
         return robinhood_data
     else:

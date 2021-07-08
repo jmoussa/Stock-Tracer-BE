@@ -35,6 +35,10 @@ class RobinhoodConnector:
         my_stocks = self.rh_conn.build_holdings()
         return my_stocks
 
+    def fetch_account_profile(self):
+        profile = self.rh_conn.profiles.load_portfolio_profile()
+        return profile
+
     def fetch_historicals(self, symbols: str or list = None, time_period: str = "5y"):
         """
         Returns a dictionary mapping each ticker (in the user's holdings) to a pandas dataframe-interpreted dictionary of the stock's historical data
@@ -46,7 +50,7 @@ class RobinhoodConnector:
             if self.build_holdings is None:
                 self.build_holdings = self.fetch_build_holdings()
 
-            symbols = list(self.build_holdings.keys())
+            symbols = [x.replace(".", "-") for x in list(self.build_holdings.keys())]
 
         # Fetch historical data from yfinance
         #   could also get from robinhood, but yfinance is faster and more accurate
@@ -62,9 +66,22 @@ class RobinhoodConnector:
 
             df.index = df.index.map(str)
             ticker_historicals = df.to_dict("index")
-            historical_data[ticker] = ticker_historicals
+            historical_data[ticker.replace("-", ".")] = ticker_historicals
 
         return historical_data
+
+    def fetch_earnings(self):
+        if self.build_holdings is None:
+            symbols = list(self.rh_conn.build_holdings().keys())
+        else:
+            symbols = list(self.build_holdings.keys())
+
+        earnings_dict = {}
+        for s in symbols:
+            logger.warning(s)
+            _earnings = self.rh_conn.stocks.get_earnings(s)
+            earnings_dict[s] = _earnings
+        return earnings_dict
 
     def fetch_transactions(self):
         stock_orders = self.rh_conn.get_all_stock_orders()
